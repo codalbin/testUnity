@@ -4,31 +4,6 @@ using UnityEngine;
 
 public class collision : MonoBehaviour
 {
-    //// Start is called before the first frame update
-    //void Start()
-    //{
-
-    //}
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    //public Vector3 moveDirection = new Vector3(1, 0, 0); // Direction du mouvement
-    //public float moveSpeed = 5f; // Vitesse du mouvement
-
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    // Vérifie si l'objet qui entre en collision a le tag souhaité
-    //    if (collision.gameObject.CompareTag("Enemy"))
-    //    {
-    //        // Applique un mouvement à cet objet
-    //        transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
-    //    }
-    //}
-
     public float forceMultiplier = 10f; // Multiplieur pour ajuster la force appliquée
 
     private Rigidbody rb;
@@ -57,11 +32,19 @@ public class collision : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             Debug.Log("Golf collision enemy");
+
             // Calculer la force de la collision
             Vector3 collisionForce = collision.impulse / Time.fixedDeltaTime;
 
-            // Appliquer une force proportionnelle à l'impact, ajustée par le multiplicateur
-            rb.AddForce(collisionForce * forceMultiplier, ForceMode.Impulse);
+            // Multiplier uniquement les axes X et Z par le multiplicateur
+            Vector3 adjustedForce = new Vector3(
+                collisionForce.x * forceMultiplier, // Multiplier l'axe X
+                0,               // Laisser l'axe Y inchangé
+                collisionForce.z * forceMultiplier // Multiplier l'axe Z
+            );
+
+            // Appliquer la force ajustée
+            rb.AddForce(adjustedForce, ForceMode.Impulse);
         }
 
         if (collision.gameObject.name == "hole")
@@ -69,8 +52,8 @@ public class collision : MonoBehaviour
             // Vérifier si le Renderer de golf_flag existe
             if (golfFlagRenderer != null)
             {
-                // Changer la couleur de l'objet "golf_flag" en une couleur spécifique
-                golfFlagRenderer.material.color = Color.green;  // Par exemple, changer la couleur en rouge
+                // Changer la couleur de l'objet "golf_flag" en vert
+                golfFlagRenderer.material.color = Color.green;
             }
             else
             {
@@ -86,13 +69,31 @@ public class collision : MonoBehaviour
             // Vérifier si le Renderer de golf_flag existe
             if (golfFlagRenderer != null)
             {
-                // Changer la couleur de l'objet "golf_flag" en une couleur spécifique
-                golfFlagRenderer.material.color = Color.green;  // Par exemple, changer la couleur en rouge
+                // Changer la couleur de l'objet "golf_flag" en vert
+                golfFlagRenderer.material.color = Color.green;
             }
             else
             {
                 Debug.LogError("Le Renderer de golfFlag est introuvable.");
             }
+        }
+
+        if (other.gameObject.tag == "Enemy")
+        {
+            Debug.Log("Golf trigger enemy");
+
+            // Calculer la force de la collision
+            Vector3 relativePosition = other.transform.position - transform.position ;
+
+            // Multiplier uniquement les axes X et Z par le multiplicateur
+            Vector3 adjustedForce = new Vector3(
+                relativePosition.x * forceMultiplier, // Multiplier l'axe X
+                0,               // Laisser l'axe Y inchangé
+                relativePosition.z * forceMultiplier // Multiplier l'axe Z
+            );
+
+            // Appliquer la force ajustée
+            rb.AddForce(adjustedForce, ForceMode.Impulse);
         }
     }
 }
